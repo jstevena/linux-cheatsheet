@@ -1,24 +1,26 @@
 # Package Management
 
+> **Untuk:** Install, update, dan bersihin paket per distro (Arch, Debian, Fedora) plus Flatpak.
+
 ## Arch - Pacman
 ```bash
-# Update & upgrade all packages
+# Update dan upgrade semua paket
 sudo pacman -Syu
 
-# Install a package
+# Install paket
 sudo pacman -S <package>
 
-# Remove package + unused dependencies
+# Hapus paket + dependency yang tidak terpakai
 sudo pacman -Rns <package>
 
-# Clean cache (keep last 3 versions)
+# Bersihkan cache (simpan 3 versi terakhir)
 sudo paccache -r
 
-# Remove orphaned packages
+# Hapus paket yatim (orphan)
 sudo pacman -Rns $(pacman -Qtdq)
 ```
 
-**Enable multilib** (required for 32-bit apps / Steam) - edit `/etc/pacman.conf`:
+**Aktifkan multilib** (dibutuhkan aplikasi 32-bit / Steam) - edit `/etc/pacman.conf`:
 ```
 [multilib]
 Include = /etc/pacman.d/mirrorlist
@@ -32,11 +34,11 @@ git clone https://aur.archlinux.org/paru.git
 cd paru
 makepkg -si
 
-# Clean AUR cache
+# Bersihkan cache AUR
 paru -Scc
 ```
 
-## Arch - Common Packages
+## Arch - Paket yang Umum Dipasang
 ```bash
 # Pacman
 sudo pacman -S ethtool nwg-look flatpak unzip ufw freerdp \
@@ -56,23 +58,27 @@ paru -S brave-bin wlogout nwg-dock-hyprland catppuccin-gtk-theme-mocha \
 
 ## Debian - APT
 ```bash
-# Update & upgrade
+# Update dan upgrade (tambah -y supaya tanpa konfirmasi)
 sudo apt update && sudo apt upgrade
 
-# Fix sudo on fresh install
+# Fix sudo di instalasi baru (sudo belum terinstal / user belum masuk grup sudo)
+apt update
 apt install sudo
 su -
-usermod -aG sudo <username>
+usermod -aG sudo <username>      # logout/login lagi supaya grup aktif
 
-# Clean up
-sudo apt autoclean    # remove outdated cached packages
-sudo apt autoremove   # remove unused packages and dependencies
-sudo apt clean        # remove all cached packages
+# Bersih-bersih
+sudo apt autoclean               # hapus cache paket yang sudah usang
+sudo apt autoremove --purge      # hapus paket dan dependency yang tidak terpakai (+ config-nya)
+sudo apt clean                   # hapus semua cache paket
 ```
+- Alias `cleanup` (apt clean + autoremove --purge + vacuum journal 2 minggu): [Bash_Aliases](Bash_Aliases.md)
+- Update otomatis bulanan lewat cron: [System_Setup](System_Setup.md)
+- Update Armbian (ada langkah `armbian-sync` / `armbian-update`): [Recovery_Armbian](../homelab-cheatsheet/Recovery_Armbian.md)
 
 ## Fedora - DNF
 ```bash
-# Useful extra package
+# Paket tambahan yang berguna
 sudo dnf install libgda
 
 # Install Brave Browser
@@ -81,7 +87,7 @@ sudo dnf config-manager addrepo \
   --from-repofile=https://brave-browser-rpm-release.s3.brave.com/brave-browser.repo
 sudo dnf install brave-browser
 
-# Install NVIDIA Driver (with Secure Boot)
+# Install driver NVIDIA (dengan Secure Boot)
 sudo dnf install https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm \
   https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
 sudo dnf install kmodtool akmods mokutil openssl
@@ -91,7 +97,7 @@ sudo dnf install akmod-nvidia
 sudo dnf install xorg-x11-drv-nvidia-cuda
 modinfo -F version nvidia
 
-# Remove Fedora Workstation bloatware
+# Hapus bloatware Fedora Workstation
 sudo dnf remove libreoffice\*
 sudo dnf remove gnome-maps gnome-weather gnome-boxes gnome-contacts \
   gnome-tour gnome-papers gnome-logs gnome-disk-utility gnome-abrt
@@ -103,10 +109,10 @@ sudo dnf remove abrt abrt-gui abrt-tui abrt-cli abrt-addon-ccpp \
 
 ## Flatpak
 ```bash
-# Add Flathub remote (per user)
+# Tambah remote Flathub (per user)
 flatpak remote-add --if-not-exists --user flathub https://flathub.org/repo/flathub.flatpakrepo
 
-# Install apps
+# Install aplikasi
 flatpak install flathub \
   com.discordapp.Discord \
   com.github.tchx84.Flatseal \

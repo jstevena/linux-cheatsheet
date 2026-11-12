@@ -1,5 +1,7 @@
 # Permissions
 
+> **Untuk:** Ownership, chmod, ACL, dan checklist troubleshooting permission (Samba dan container).
+
 ## 1. Ownership Dasar
 
 Ubah owner folder jadi johan (recursive):
@@ -31,7 +33,7 @@ Format: owner-group-other, tiap digit = read(4) + write(2) + execute(1)
 /mnt/pool/Downloads  -> 777 (folder kerja aktual, full akses semua)
 ```
 
-## 3. Troubleshooting Checklist
+## 3. Checklist Troubleshooting
 
 Urutan debug, dari yang paling sering jadi penyebab:
 
@@ -89,3 +91,29 @@ Di compose, pastikan container jalan sebagai UID yang sama:
 ```yaml
     user: "1000:1000"
 ```
+
+## Alternatif: ACL (kalau chown/chmod saja nggak cukup)
+Dipakai kalau banyak proses/container dengan UID berbeda menulis ke folder yang sama dan file baru harus otomatis bisa diakses `root` dan `johan` (UID 1000).
+
+```bash
+# Pastikan paket acl terinstal
+sudo apt update && sudo apt install -y acl
+
+# Izin akses penuh untuk root (0) dan johan (1000)
+sudo setfacl -m u:0:rwx,u:1000:rwx /mnt/pool1/
+
+# Default ACL supaya otomatis turun ke file/folder baru
+sudo setfacl -m d:u:0:rwx,d:u:1000:rwx /mnt/pool1/
+
+# Terapkan rekursif ke isi folder yang sudah ada
+sudo setfacl -R -m u:0:rwx,u:1000:rwx /mnt/pool1/
+sudo setfacl -R -m d:u:0:rwx,d:u:1000:rwx /mnt/pool1/
+```
+- Opsi `d:` = **default ACL**, hanya berlaku untuk folder dan diwariskan ke isi baru. ACL biasa (`u:`) berlaku untuk entri yang sudah ada.
+- Path `/mnt/pool1` dari setup lama. Di NAS sekarang pool-nya `/mnt/pool`, sesuaikan.
+- `setfacl -R` di seluruh pool bisa lama kalau datanya banyak. Kalau cukup untuk satu folder, arahkan ke folder itu saja (misal `/mnt/pool/Downloads/YouTube`).
+- Cek hasil: `getfacl /mnt/pool1/`. Tanda `+` di akhir permission (`ls -l`) berarti ada ACL.
+
+## Terkait
+- Setup Samba dan user share: [Samba_Share](Samba_Share.md)
+- Pool mergerfs: [Mergerfs_Storage_Pool](Mergerfs_Storage_Pool.md)

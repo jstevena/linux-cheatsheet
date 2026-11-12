@@ -1,18 +1,20 @@
-# Networking & Firewall
+# Networking dan Firewall
+
+> **Untuk:** Rule UFW per aplikasi di PC desktop (Samba, KDE Connect, VNC, Sunshine) dan setup DNS over HTTPS.
 
 ## UFW
 ```bash
-# Enable UFW
+# Aktifkan UFW
 sudo ufw enable
 sudo systemctl enable --now ufw
 
-# View rules
+# Lihat rule
 ufw status numbered
 ```
 
-### Ports by Service
+### Port per Layanan
 ```bash
-# Samba (file sharing)
+# Samba (berbagi file)
 ufw allow 137/udp
 ufw allow 138/udp
 ufw allow 139/tcp
@@ -26,7 +28,7 @@ ufw allow 1714:1764/udp
 ufw allow 5900/tcp
 ufw allow 5969/tcp
 
-# Sunshine (game streaming)
+# Sunshine (streaming game)
 ufw allow 47984/tcp
 ufw allow 47989/tcp
 ufw allow 48010/tcp
@@ -42,23 +44,23 @@ ufw allow 48010/udp
 # Install
 sudo pacman -S dns-over-https
 
-# Check if port 53 is already in use
+# Cek apakah port 53 sudah dipakai
 ss -lp 'sport = :domain'
 ```
 
-Configure upstream DNS - edit `/etc/dns-over-https/doh-client.conf`:
+Atur upstream DNS - edit `/etc/dns-over-https/doh-client.conf`:
 ```
 [[upstream.upstream_ietf]]
     url = "https://cloudflare-dns.com/dns-query"
     weight = 50
 ```
 
-Point resolv.conf to localhost - edit `/etc/resolv.conf`:
+Arahkan resolv.conf ke localhost - edit `/etc/resolv.conf`:
 ```
 nameserver 127.0.0.1
 ```
 
 ```bash
-# Enable service
+# Aktifkan service
 sudo systemctl enable --now doh-client.service
 ```

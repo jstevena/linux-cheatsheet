@@ -1,48 +1,50 @@
-# Storage & Disk
+# Storage dan Disk
+
+> **Untuk:** Format dan cek HDD, passthrough disk ke VM Proxmox, dan mount cloud storage (rclone).
 
 ## Format HDD
 ```bash
-# 1. List disks
+# 1. Lihat daftar disk
 lsblk
 
 # 2. Unmount disk
 sudo umount /dev/sdb1
 
-# 3. Wipe all filesystem signatures
+# 3. Hapus semua signature filesystem
 sudo wipefs -a /dev/sdb
 
-# 4. Create new partition
+# 4. Buat partisi baru
 sudo fdisk /dev/sdb
 
-# 5. Format to ext4
+# 5. Format ke ext4
 sudo mkfs.ext4 /dev/sdb1
 ```
 
-## fsck (Check & Repair Filesystem)
+## fsck (Cek dan Perbaiki Filesystem)
 ```bash
-# Make sure the disk is not mounted
+# Pastikan disk tidak ter-mount
 sudo lsof /mnt/HDD
 sudo umount /mnt/HDD
 
-# Check only (read-only, no changes)
+# Cek saja (read-only, tidak mengubah apa pun)
 sudo fsck -n /dev/sdXn
 
-# Check and auto-repair
+# Cek dan perbaiki otomatis
 sudo fsck -y /dev/sdXn
 ```
 
-## HDD Passthrough to VM (Proxmox)
+## Passthrough HDD ke VM (Proxmox)
 ```bash
-# List disk IDs
+# Lihat ID disk
 ls -n /dev/disk/by-id/
 
-# Attach disk to VM (example: VM ID 101, slot scsi1)
+# Pasang disk ke VM (contoh: VM ID 101, slot scsi1)
 /sbin/qm set 101 -scsi1 /dev/disk/by-id/ata-ST500DM002-1BD142_Z3TVLJD7
 ```
 
 ## Rclone - Mount Cloud Storage
 ```bash
-# Create mount directories before starting the service
+# Buat direktori mount sebelum menjalankan service
 mkdir -p /home/johan/Cloud/OneDrive
 mkdir -p "/home/johan/Cloud/Google Drive"
 mkdir -p /home/johan/Cloud/.cache
@@ -68,7 +70,7 @@ User=johan
 WantedBy=multi-user.target
 ```
 
-**Service: Google Drive (Encrypted)** - `/etc/systemd/system/rclone-gdrive.service`:
+**Service: Google Drive (Terenkripsi)** - `/etc/systemd/system/rclone-gdrive.service`:
 ```ini
 [Unit]
 Description=Rclone Mount for Google Drive Encrypted
@@ -89,12 +91,12 @@ WantedBy=multi-user.target
 ```
 
 ```bash
-# Reload systemd and enable
+# Reload systemd dan aktifkan
 sudo systemctl daemon-reload
 sudo systemctl enable --now rclone-onedrive
 sudo systemctl enable --now rclone-gdrive
 
-# Check status
+# Cek status
 sudo systemctl status rclone-onedrive
 sudo systemctl status rclone-gdrive
 ```
